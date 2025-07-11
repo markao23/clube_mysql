@@ -16,6 +16,8 @@
         </style>
     </head>
     <body class="antialiased">
-        <x-navbar />
+        <header>
+            <x-navbar />
+        </header>
     </body>
 </html>

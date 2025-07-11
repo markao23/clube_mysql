@@ -10,7 +10,7 @@
           </svg>
         </div>
         <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-          <a href="#" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
+          <a href="/dashboard" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white">Dashboard</a>
           <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700">Membros</a>
           <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700">Pagamentos</a>
           <a href="#" class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700">Relatórios</a>
@@ -53,7 +53,6 @@
           </div>
         </div>
       </div>
-      
     </div>
   </div>
 </nav>

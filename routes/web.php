@@ -16,3 +16,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/dashboard', function () {
+    
+    // VERIFIQUE ESTA LINHA COM ATENÇÃO MÁXIMA
+    $totalCaixa = DB::table('vendas')->sum('valor_total'); // <-- Deve ser 'valor_total'
+
+    $novosUsuarios = DB::table('users')->where('created_at', '>=', now()->subDays(30))->count();
+    $totalProdutos = DB::table('produtos')->count();
+
+    return view('dashboard', [
+        'totalCaixa' => $totalCaixa,
+        'novosUsuarios' => $novosUsuarios,
+        'totalProdutos' => $totalProdutos,
+    ]);
+});
