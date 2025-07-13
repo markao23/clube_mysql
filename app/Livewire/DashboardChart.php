@@ -26,34 +26,60 @@ class DashboardChart extends Component
     }
 
     // Função principal que busca os dados e prepara para o gráfico
-    public function updateChartData()
-    {
-        // Lógica de exemplo para buscar dados do banco
-        // Você precisará adaptar as tabelas e colunas para o seu banco de dados
-        $salesData = DB::table('vendas')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(valor_total) as total'))
-            ->where('created_at', '>=', $this->getStartDate())
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
+    // Em app/Livewire/DashboardChart.php
 
-        $usersData = DB::table('users')
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as total'))
-            ->where('created_at', '>=', $this->getStartDate())
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
+public function updateChartData()
+{
+    $startDate = $this->getStartDate();
+    // Define o formato da data para agrupar (dia ou mês)
+    $dateFormat = $this->period === '12m' ? "%Y-%m" : "%Y-%m-%d";
 
-        // Prepara os dados no formato que o ApexCharts espera
-        $this->chartData = [
-            'sales' => $salesData->pluck('total')->toArray(),
-            'users' => $usersData->pluck('total')->toArray(),
-            'categories' => $salesData->pluck('date')->toArray(),
-        ];
+    $salesData = DB::table('vendas')
+        ->select(
+            DB::raw("DATE_FORMAT(created_at, '$dateFormat') as date"),
+            DB::raw('SUM(valor_total) as total')
+        )
+        ->where('created_at', '>=', $startDate)
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->keyBy('date'); // keyBy('date') facilita a junção dos dados
 
-        // Dispara um evento para o JavaScript atualizar o gráfico com os novos dados
-        $this->dispatch('chartDataUpdated', $this->chartData);
+    $usersData = DB::table('users')
+        ->select(
+            DB::raw("DATE_FORMAT(created_at, '$dateFormat') as date"),
+            DB::raw('COUNT(*) as total')
+        )
+        ->where('created_at', '>=', $startDate)
+        ->groupBy('date')
+        ->orderBy('date', 'asc')
+        ->get()
+        ->keyBy('date');
+
+    // Gera um array com todas as datas/meses no período para evitar buracos no gráfico
+    $periodDates = collect();
+    $currentDate = $startDate->copy();
+    while ($currentDate <= now()) {
+        $periodDates->push($currentDate->format($this->period === '12m' ? 'Y-m' : 'Y-m-d'));
+        if ($this->period === '12m') {
+            $currentDate->addMonth();
+        } else {
+            $currentDate->addDay();
+        }
     }
+
+    // Preenche os dados, colocando 0 onde não houve registro
+    $sales = $periodDates->map(fn($date) => $salesData->get($date)->total ?? 0);
+    $users = $periodDates->map(fn($date) => $usersData->get($date)->total ?? 0);
+
+    $this->chartData = [
+        'sales' => $sales->values()->toArray(),
+        'users' => $users->values()->toArray(),
+        'categories' => $periodDates->toArray(),
+    ];
+
+    $this->dispatch('chartDataUpdated', $this->chartData);
+}
 
     // Função auxiliar para calcular a data de início baseada no período
     private function getStartDate()

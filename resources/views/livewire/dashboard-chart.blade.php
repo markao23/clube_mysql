@@ -1,4 +1,4 @@
-<div class="bg-white p-6 rounded-xl shadow-lg">
+<div class="bg-white p-6 rounded-xl shadow-lg mt-4">
 
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800">Métricas Gerais</h2>
@@ -22,7 +22,7 @@
         // Opções de configuração iniciais do gráfico
         const options = {
             chart: {
-                type: 'line', // Tipo de gráfico (linha)
+                type: 'bar', // Tipo de gráfico (linha)
                 height: 350,
                 toolbar: {
                     show: false
@@ -38,9 +38,6 @@
             xaxis: {
                 categories: [] // Categorias do eixo X (datas)
             },
-            stroke: {
-                curve: 'smooth' // Linhas suavizadas
-            },
             // ... outras opções de estilo
         };
 
@@ -50,23 +47,21 @@
 
         // Ouve o evento do Livewire para atualizar o gráfico
         document.addEventListener('livewire:initialized', () => {
-            @this.on('chartDataUpdated', (event) => {
-                // Atualiza os dados e categorias do gráfico com os novos valores
-                chart.updateSeries([{
-                    name: 'Vendas (R$)',
-                    data: event[0].sales
-                }, {
-                    name: 'Novos Usuários',
-                    data: event[0].users
-                }]);
-
-                chart.updateOptions({
-                    xaxis: {
-                        categories: event[0].categories
-                    }
-                });
+        // Ajustamos o listener para o novo formato de dados
+        @this.on('chartDataUpdated', (event) => {
+            chart.updateSeries([{
+                data: event[0].series
+            }]);
+            chart.updateOptions({
+                xaxis: {
+                    categories: event[0].categories
+                }
             });
         });
+        
+        // Carrega os dados iniciais
+        @this.call('updateChartData');
+    });
     </script>
     @endscript
 </div>

@@ -7,11 +7,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100">
+    @include('layouts.partials.navbar')
     <header>
         </header>
 
     <main class="p-4 sm:p-6 lg:p-8">
-        {{ $slot }}
+        @yield('content')
     </main>
 </body>
 </html>
